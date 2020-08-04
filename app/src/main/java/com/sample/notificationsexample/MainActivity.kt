@@ -2,6 +2,7 @@ package com.sample.notificationsexample
 
 import android.app.PendingIntent
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
@@ -43,7 +44,10 @@ class MainActivity : AppCompatActivity() {
         broadcastIntent.putExtra("toastMessage", message)
 
         // this time the flag is required in order to update the message included in the broadcast intent
-        val actionIntent = PendingIntent.getBroadcast(this, 0, broadcastIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+        val actionIntent =
+            PendingIntent.getBroadcast(this, 0, broadcastIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+
+        val largeIcon = BitmapFactory.decodeResource(resources, R.drawable.dassie)
 
         // The notification channel configuration could/should be set here if we are working with an API lower than Oreo
         // Since here we could override the notification channel properties
@@ -53,6 +57,13 @@ class MainActivity : AppCompatActivity() {
             .setSmallIcon(R.drawable.ic_one)
             .setContentTitle(title)
             .setContentText(message)
+            .setLargeIcon(largeIcon)
+            .setStyle(
+                NotificationCompat.BigTextStyle()
+                    .bigText(getString(R.string.long_dummy_text))
+                    .setBigContentTitle(getString(R.string.big_content_title))
+                    .setSummaryText(getString(R.string.summary_text))
+            )
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setCategory(NotificationCompat.CATEGORY_MESSAGE)
             .setColor(Color.BLUE) // Setting the color of the notification
@@ -74,6 +85,18 @@ class MainActivity : AppCompatActivity() {
             .setSmallIcon(R.drawable.ic_two)
             .setContentTitle(title)
             .setContentText(message)
+            .setStyle(
+                NotificationCompat.InboxStyle()
+                    .addLine("This is line 1")
+                    .addLine("This is line 2")
+                    .addLine("This is line 3")
+                    .addLine("This is line 4")
+                    .addLine("This is line 5")
+                    .addLine("This is line 6")
+                    .addLine("This is line 7")
+                    .setBigContentTitle(getString(R.string.big_content_title))
+                    .setSummaryText(getString(R.string.summary_text))
+            )
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .build()
 
