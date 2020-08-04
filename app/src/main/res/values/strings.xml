@@ -1,3 +1,11 @@
 <resources>
-    <string name="app_name">NotificationsExample</string>
+    <string name="app_name">Notifications Example</string>
+    <string name="channel1_name">Channel 1</string>
+    <string name="channel2_name">Channel 2</string>
+    <string name="channel1_description">This is Channel 1</string>
+    <string name="channel2_description">This is Channel 2</string>
+    <string name="title">Title</string>
+    <string name="message">Message</string>
+    <string name="send_on_channel_1">Send on Channel 1</string>
+    <string name="send_on_channel_2">Send on Channel 2</string>
 </resources>
