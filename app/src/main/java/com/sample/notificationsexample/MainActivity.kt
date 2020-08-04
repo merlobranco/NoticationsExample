@@ -1,9 +1,12 @@
 package com.sample.notificationsexample
 
-import androidx.appcompat.app.AppCompatActivity
+import android.app.PendingIntent
+import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.widget.EditText
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 
@@ -27,6 +30,21 @@ class MainActivity : AppCompatActivity() {
         val title = editTextTitle.text.toString()
         val message = editTextMessage.text.toString()
 
+        // We cannot pass an intent to our notification
+        val activityIntent = Intent(this, MainActivity::class.java)
+        // Instead we should pass an pending intent, wrapper around the normal intent
+        // (allows hand it to the notification manager and execute out intent)
+        //      requestCode: If we allow the user to update or cancel this pending intent
+        //      flags: Defines what happens when we recreate this pending Intent with a new intent
+        val contentIntent = PendingIntent.getActivity(this, 0, activityIntent, 0)
+
+        // Starting the Broadcast receiver instead of the activity
+        val broadcastIntent = Intent(this, NotificationReceiver::class.java)
+        broadcastIntent.putExtra("toastMessage", message)
+
+        // this time the flag is required in order to update the message included in the broadcast intent
+        val actionIntent = PendingIntent.getBroadcast(this, 0, broadcastIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+
         // The notification channel configuration could/should be set here if we are working with an API lower than Oreo
         // Since here we could override the notification channel properties
         // The provided channel ID will be ignored in APIs lower than Oreo
@@ -37,6 +55,11 @@ class MainActivity : AppCompatActivity() {
             .setContentText(message)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setCategory(NotificationCompat.CATEGORY_MESSAGE)
+            .setColor(Color.BLUE) // Setting the color of the notification
+            .setContentIntent(contentIntent)
+            .setAutoCancel(true) // The notification is tapped if we automatically dismisses it
+            .setOnlyAlertOnce(true) // The notification will pop and sound the alarm the first time is triggered
+            .addAction(R.mipmap.ic_launcher, "Toast", actionIntent) // Adding action button
             .build()
 
         // If we want to send different notifications at the same time we should provide different ids
