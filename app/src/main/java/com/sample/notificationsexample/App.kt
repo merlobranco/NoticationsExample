@@ -13,6 +13,7 @@ import android.os.Build
 // Setting notification channels
 const val CHANNEL_1_ID = "channel1"
 const val CHANNEL_2_ID = "channel2"
+const val CHAT_KEY = "key_text_reply"
 
 class App: Application() {
 
