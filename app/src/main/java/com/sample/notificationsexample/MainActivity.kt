@@ -5,6 +5,8 @@ import android.content.Intent
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.os.Bundle
+import android.se.omapi.Session
+import android.support.v4.media.session.MediaSessionCompat
 import android.view.View
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
@@ -16,6 +18,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var notificationManager: NotificationManagerCompat
     private lateinit var editTextTitle: EditText
     private lateinit var editTextMessage: EditText
+    private lateinit var mediaSession: MediaSessionCompat
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,6 +28,9 @@ class MainActivity : AppCompatActivity() {
 
         editTextTitle = findViewById(R.id.edit_text_title)
         editTextMessage = findViewById(R.id.edit_text_message)
+
+        // Providing background color effect, choosing colors from bits from the provided image
+        mediaSession = MediaSessionCompat(this, "MediaSession")
     }
 
     fun sendOnChannel1(v: View) {
@@ -47,7 +53,7 @@ class MainActivity : AppCompatActivity() {
         val actionIntent =
             PendingIntent.getBroadcast(this, 0, broadcastIntent, PendingIntent.FLAG_UPDATE_CURRENT)
 
-        val largeIcon = BitmapFactory.decodeResource(resources, R.drawable.dassie)
+        val picture = BitmapFactory.decodeResource(resources, R.drawable.dassie)
 
         // The notification channel configuration could/should be set here if we are working with an API lower than Oreo
         // Since here we could override the notification channel properties
@@ -57,12 +63,17 @@ class MainActivity : AppCompatActivity() {
             .setSmallIcon(R.drawable.ic_one)
             .setContentTitle(title)
             .setContentText(message)
-            .setLargeIcon(largeIcon)
+            .setLargeIcon(picture)
+//            .setStyle(
+//                NotificationCompat.BigTextStyle()
+//                    .bigText(getString(R.string.long_dummy_text))
+//                    .setBigContentTitle(getString(R.string.big_content_title))
+//                    .setSummaryText(getString(R.string.summary_text))
+//            )
             .setStyle(
-                NotificationCompat.BigTextStyle()
-                    .bigText(getString(R.string.long_dummy_text))
-                    .setBigContentTitle(getString(R.string.big_content_title))
-                    .setSummaryText(getString(R.string.summary_text))
+                NotificationCompat.BigPictureStyle()
+                    .bigPicture(picture)
+                    .bigLargeIcon(null) // Makes disappear the previous set large icon
             )
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setCategory(NotificationCompat.CATEGORY_MESSAGE)
@@ -81,22 +92,39 @@ class MainActivity : AppCompatActivity() {
         val title = editTextTitle.text.toString()
         val message = editTextMessage.text.toString()
 
+        // We could put a whole media player notifier (video, audio) instead of a simple image
+        val artwork = BitmapFactory.decodeResource(resources, R.drawable.valiant)
+
         var notification = NotificationCompat.Builder(this, CHANNEL_2_ID)
             .setSmallIcon(R.drawable.ic_two)
             .setContentTitle(title)
             .setContentText(message)
+            .setLargeIcon(artwork)
+            // Adding button that will trigger actions. These intents should be configured properly
+            .addAction(R.drawable.ic_dislike, "Dislike", null)
+            .addAction(R.drawable.ic_previous, "Previous", null)
+            .addAction(R.drawable.ic_pause, "Pause", null)
+            .addAction(R.drawable.ic_next, "Next", null)
+            .addAction(R.drawable.ic_like, "Like", null)
+//            .setStyle(
+//                NotificationCompat.InboxStyle()
+//                    .addLine("This is line 1")
+//                    .addLine("This is line 2")
+//                    .addLine("This is line 3")
+//                    .addLine("This is line 4")
+//                    .addLine("This is line 5")
+//                    .addLine("This is line 6")
+//                    .addLine("This is line 7")
+//                    .setBigContentTitle(getString(R.string.big_content_title))
+//                    .setSummaryText(getString(R.string.summary_text))
+//            )
             .setStyle(
-                NotificationCompat.InboxStyle()
-                    .addLine("This is line 1")
-                    .addLine("This is line 2")
-                    .addLine("This is line 3")
-                    .addLine("This is line 4")
-                    .addLine("This is line 5")
-                    .addLine("This is line 6")
-                    .addLine("This is line 7")
-                    .setBigContentTitle(getString(R.string.big_content_title))
-                    .setSummaryText(getString(R.string.summary_text))
+                androidx.media.app.NotificationCompat.MediaStyle()
+                    // Passing previous configure actions
+                    .setShowActionsInCompactView(1, 2, 3)
+                    .setMediaSession(mediaSession.sessionToken)
             )
+            .setSubText("Sub Text")
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .build()
 
