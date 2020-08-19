@@ -1,5 +1,6 @@
 package com.sample.notificationsexample
 
+import android.app.Notification
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -141,41 +142,93 @@ class MainActivity : AppCompatActivity() {
         sendOnChannel1Notification(this)
     }
 
+
     fun sendOnChannel2(v: View) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+            sendOnChannel2Nugget()
+        else
+            sendOnChannel2LowerNugget()
+    }
+
+    /**
+     * Approach for Nougat API and for on: From the 4th notification a notification group will be created
+     * And the event of opening our App by clicking on our Notification Group will be created automatically as well
+     */
+    private fun sendOnChannel2Nugget() {
         var notification = NotificationCompat.Builder(this, CHANNEL_2_ID)
             .setSmallIcon(R.drawable.ic_two)
-            .setContentTitle(getString(R.string.download))
-            .setContentText(getString(R.string.download_in_progress))
+            .setContentTitle(getString(R.string.title))
+            .setContentText(getString(R.string.message))
             .setPriority(NotificationCompat.PRIORITY_LOW)
-            .setOngoing(true) // Notification cannot be dismissed(swept away) by the user
-            .setOnlyAlertOnce(true) // If the notification priority were higher it will sound the alarm every time a change is triggered
-            // Indeterminate means that does not have an extra progress,
-            // it just have an ongoing animation
-            // When indeterminate = true, progressMax and progress are ignored
-            .setProgress(PROGRESS_MAX, 0, false)
+            .build()
 
-        // Providing a new id in order to not override the Notification One
-        notificationManager.notify(2, notification.build())
-
-        // Implementing Runnable through SAM Conversions
-
+        // Creating a coroutine In order to avoid freezing the main thread and our app
         coroutineScope.launch {
-            SystemClock.sleep(2000)
-            for (progress in 0..PROGRESS_MAX step 10) {
-                // Updating the notification progress
-                notification.setProgress(PROGRESS_MAX, progress, false)
-                // Triggering the notification
-                notificationManager.notify(2, notification.build())
-                SystemClock.sleep(1000)
+            for (i in 1..5) {
+                SystemClock.sleep(2000)
+                // Providing a new id in order to not override the Notification One
+                notificationManager.notify(i, notification)
             }
-
-            notification.setContentText("Download finished")
-                .setProgress(0, 0, false)
-                .setOngoing(false)
-            notificationManager.notify(2, notification.build())
         }
     }
 
+    /**
+     * Approach for lower APIs than Nougat
+     */
+    private fun sendOnChannel2LowerNugget() {
+
+        // Required for opening our Application when the Group notification is clicked
+        val activityIntent = Intent(this, MainActivity::class.java)
+        val contentIntent = PendingIntent.getActivity(this, 0, activityIntent, 0)
+
+        val title1 = "Title1"
+        val message1 = "Message1"
+        val title2 = "Title2"
+        val message2 = "Message2"
+
+        var notification = NotificationCompat.Builder(this, CHANNEL_2_ID)
+            .setSmallIcon(R.drawable.ic_two)
+            .setContentTitle(title1)
+            .setContentText(message1)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setGroup("example_group")
+            .build()
+
+
+        var notification2 = NotificationCompat.Builder(this, CHANNEL_2_ID)
+            .setSmallIcon(R.drawable.ic_two)
+            .setContentTitle(title2)
+            .setContentText(message2)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setGroup("example_group")
+            .build()
+
+        var summaryNotification = NotificationCompat.Builder(this, CHANNEL_2_ID)
+            .setSmallIcon(R.drawable.ic_reply)
+            .setStyle(
+                NotificationCompat.InboxStyle()
+                    .addLine("$title2 $message2")
+                    .addLine("$title1 $message1")
+                    .setBigContentTitle("2 new messages")
+                    .setSummaryText("user@example.com")
+            )
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setGroup("example_group")
+            .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_CHILDREN)
+            .setContentIntent(contentIntent)
+            .setGroupSummary(true)
+            .build()
+
+        // Providing a new ids in order to not override the previous Notifications
+        coroutineScope.launch {
+            SystemClock.sleep(2000)
+            notificationManager.notify(2, notification)
+            SystemClock.sleep(2000)
+            notificationManager.notify(3, notification2)
+            SystemClock.sleep(2000)
+            notificationManager.notify(4, summaryNotification)
+        }
+    }
 
     override fun onDestroy() {
         activityJob.cancel()
