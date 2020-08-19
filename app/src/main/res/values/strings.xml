@@ -2,8 +2,12 @@
     <string name="app_name">Notifications Example</string>
     <string name="channel1_name">Channel 1</string>
     <string name="channel2_name">Channel 2</string>
+    <string name="channel3_name">Channel 3</string>
+    <string name="channel4_name">Channel 4</string>
     <string name="channel1_description">This is Channel 1</string>
     <string name="channel2_description">This is Channel 2</string>
+    <string name="channel3_description">This is Channel 3</string>
+    <string name="channel4_description">This is Channel 4</string>
     <string name="title">Title</string>
     <string name="message">Message</string>
     <string name="send_on_channel_1">Send on Channel 1</string>
@@ -13,4 +17,6 @@
     <string name="summary_text">Summary Text</string>
     <string name="download">Download</string>
     <string name="download_in_progress">Download in progress</string>
+    <string name="group1_name">Group 1</string>
+    <string name="group2_name">Group 2</string>
 </resources>
