@@ -7,6 +7,7 @@ import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock
+import android.view.Menu
 import android.view.View
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
@@ -14,11 +15,30 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.Person
 import androidx.core.app.RemoteInput
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 
 
 const val PROGRESS_MAX = 100
 
 class MainActivity : AppCompatActivity() {
+
+    /**
+     * This is the job for all coroutines started by this ViewModel.
+     *
+     * Cancelling this job will cancel all coroutines started by this ViewModel.
+     */
+    private val activityJob = SupervisorJob()
+
+    /**
+     * This is the main scope for all coroutines launched by MainViewModel.
+     *
+     * Since we pass activityJob, we can cancel all coroutines launched by coroutineScope by calling
+     * activityJob.cancel()
+     */
+    private val coroutineScope = CoroutineScope(activityJob + Dispatchers.Main)
 
     private lateinit var notificationManager: NotificationManagerCompat
     private lateinit var editTextTitle: EditText
@@ -138,7 +158,8 @@ class MainActivity : AppCompatActivity() {
         notificationManager.notify(2, notification.build())
 
         // Implementing Runnable through SAM Conversions
-        Thread(Runnable {
+
+        coroutineScope.launch {
             SystemClock.sleep(2000)
             for (progress in 0..PROGRESS_MAX step 10) {
                 // Updating the notification progress
@@ -152,6 +173,12 @@ class MainActivity : AppCompatActivity() {
                 .setProgress(0, 0, false)
                 .setOngoing(false)
             notificationManager.notify(2, notification.build())
-        }).start()
+        }
+    }
+
+
+    override fun onDestroy() {
+        activityJob.cancel()
+        super.onDestroy()
     }
 }
