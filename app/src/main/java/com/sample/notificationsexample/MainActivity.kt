@@ -3,11 +3,10 @@ package com.sample.notificationsexample
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
-import android.support.v4.media.session.MediaSessionCompat
+import android.os.SystemClock
 import android.view.View
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
@@ -16,12 +15,14 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.Person
 import androidx.core.app.RemoteInput
 
+
+const val PROGRESS_MAX = 100
+
 class MainActivity : AppCompatActivity() {
 
     private lateinit var notificationManager: NotificationManagerCompat
     private lateinit var editTextTitle: EditText
     private lateinit var editTextMessage: EditText
-    private lateinit var mediaSession: MediaSessionCompat
 
     // The collection of messages shouldn't be declared here, in this way, but is just for testing purposes
     // We are using the companion object in order to declare it like a static java property
@@ -111,9 +112,6 @@ class MainActivity : AppCompatActivity() {
         editTextTitle = findViewById(R.id.edit_text_title)
         editTextMessage = findViewById(R.id.edit_text_message)
 
-        // Providing background color effect, choosing colors from bits from the provided image
-        mediaSession = MediaSessionCompat(this, "MediaSession")
-
         messages.add(Message("Good morning!", "Jim"))
         messages.add(Message("Hello", null))
         messages.add(Message("Hi!", "Jenny"))
@@ -124,35 +122,36 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun sendOnChannel2(v: View) {
-        val title = editTextTitle.text.toString()
-        val message = editTextMessage.text.toString()
-
-        // We could put a whole media player notifier (video, audio) instead of a simple image
-        val artwork = BitmapFactory.decodeResource(resources, R.drawable.valiant)
-
         var notification = NotificationCompat.Builder(this, CHANNEL_2_ID)
             .setSmallIcon(R.drawable.ic_two)
-            .setContentTitle(title)
-            .setContentText(message)
-            .setLargeIcon(artwork)
-            // Adding button that will trigger actions. These intents should be configured properly
-            .addAction(R.drawable.ic_dislike, "Dislike", null)
-            .addAction(R.drawable.ic_previous, "Previous", null)
-            .addAction(R.drawable.ic_pause, "Pause", null)
-            .addAction(R.drawable.ic_next, "Next", null)
-            .addAction(R.drawable.ic_like, "Like", null)
-            .setStyle(
-                androidx.media.app.NotificationCompat.MediaStyle()
-                    // Passing previous configure actions
-                    .setShowActionsInCompactView(1, 2, 3)
-                    .setMediaSession(mediaSession.sessionToken)
-            )
-            .setSubText("Sub Text")
+            .setContentTitle(getString(R.string.download))
+            .setContentText(getString(R.string.download_in_progress))
             .setPriority(NotificationCompat.PRIORITY_LOW)
-            .build()
+            .setOngoing(true) // Notification cannot be dismissed(swept away) by the user
+            .setOnlyAlertOnce(true) // If the notification priority were higher it will sound the alarm every time a change is triggered
+            // Indeterminate means that does not have an extra progress,
+            // it just have an ongoing animation
+            // When indeterminate = true, progressMax and progress are ignored
+            .setProgress(PROGRESS_MAX, 0, false)
 
         // Providing a new id in order to not override the Notification One
-        notificationManager.notify(2, notification)
+        notificationManager.notify(2, notification.build())
 
+        // Implementing Runnable through SAM Conversions
+        Thread(Runnable {
+            SystemClock.sleep(2000)
+            for (progress in 0..PROGRESS_MAX step 10) {
+                // Updating the notification progress
+                notification.setProgress(PROGRESS_MAX, progress, false)
+                // Triggering the notification
+                notificationManager.notify(2, notification.build())
+                SystemClock.sleep(1000)
+            }
+
+            notification.setContentText("Download finished")
+                .setProgress(0, 0, false)
+                .setOngoing(false)
+            notificationManager.notify(2, notification.build())
+        }).start()
     }
 }
