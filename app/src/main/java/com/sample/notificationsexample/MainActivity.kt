@@ -165,6 +165,15 @@ class MainActivity : AppCompatActivity() {
             sendOnChannel2LowerNugget()
     }
 
+    fun deleteNotificationChannels(v: View) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val manager = getSystemService(Application.NOTIFICATION_SERVICE) as NotificationManager
+            // the channel notification channel will be recreated with the previous user channel configuration
+            manager.deleteNotificationChannel(CHANNEL_3_ID)
+//            manager.deleteNotificationChannelGroup(GROUP_1_ID)
+        }
+    }
+
     /**
      * Approach for Nougat API and for on: From the 4th notification a notification group will be created
      * And the event of opening our App by clicking on our Notification Group will be created automatically as well
