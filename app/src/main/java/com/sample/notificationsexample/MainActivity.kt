@@ -1,16 +1,21 @@
 package com.sample.notificationsexample
 
+import android.app.Application
 import android.app.Notification
+import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock
+import android.provider.Settings
 import android.view.Menu
 import android.view.View
 import android.widget.EditText
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -139,6 +144,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun sendOnChannel1(v: View) {
+        if (!notificationManager.areNotificationsEnabled()) {
+            openNotificationSettings()
+            return
+        }
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && isChannelBlocked(CHANNEL_1_ID)) {
+            openChannelSettings(CHANNEL_1_ID)
+            return
+        }
+
         sendOnChannel1Notification(this)
     }
 
@@ -229,6 +244,40 @@ class MainActivity : AppCompatActivity() {
             notificationManager.notify(4, summaryNotification)
         }
     }
+
+    private fun openNotificationSettings() {
+        var intent: Intent
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+            // In this way the system knows it should open the settings for this app
+            intent.putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
+            // Like opening a normal activity
+            startActivity(intent)
+        }
+        else {
+            intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+            intent.data = Uri.parse("package:$packageName")
+            startActivity(intent)
+        }
+    }
+
+    // This annotation force Android SDK version checking is equal of bigger than Oreo
+    // We don't have to do it inside
+    @RequiresApi(26)
+    private fun isChannelBlocked(channelId: String): Boolean {
+        val manager = getSystemService(Application.NOTIFICATION_SERVICE) as NotificationManager
+        val channel = manager.getNotificationChannel(channelId)
+        return channel != null && channel.importance == NotificationManager.IMPORTANCE_NONE
+    }
+
+    @RequiresApi(26)
+    private fun openChannelSettings(channelId: String) {
+        val intent = Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS)
+        intent.putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
+        intent.putExtra(Settings.EXTRA_CHANNEL_ID, channelId)
+        startActivity(intent)
+    }
+
 
     override fun onDestroy() {
         activityJob.cancel()
