@@ -23,14 +23,56 @@
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/send_on_channel_1"
-        android:onClick="sendOnChannel1"/>
+        android:text="@string/send_on_channel_1_cn"
+        android:onClick="sendOnChannel1Cn"/>
 
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/send_on_channel_2"
-        android:onClick="sendOnChannel2"/>
+        android:text="@string/send_on_channel_2_cn"
+        android:onClick="sendOnChannel2Cn"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/send_on_channel_1_li_bt"
+        android:onClick="sendOnChannel1LiBtAo"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/send_on_channel_2_i"
+        android:onClick="sendOnChannel2In"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/send_on_channel_1_bp"
+        android:onClick="sendOnChannel1Bp"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/send_on_channel_2_m"
+        android:onClick="sendOnChannel2M"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/send_on_channel_2_pb"
+        android:onClick="sendOnChannel2Pb"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/send_on_channel_1_cs"
+        android:onClick="sendOnChannel1Cs"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/send_on_channel_2_ng"
+        android:onClick="sendOnChannel2Ng"/>
 
     <Button
         android:layout_width="match_parent"
